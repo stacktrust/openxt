@@ -1,0 +1,72 @@
+# EXPERIMENTAL: Multiconfig parallel builds
+#
+# Environment setup:
+#
+#    cd openxt/build/repos/openembedded-core
+#    ln -s ../.. build
+#    . ./oe-init-build-env
+#
+# Sample multiconfig build:
+#
+#    MACHINE=openxt-installer bitbake mc::openxt-installer-iso
+#
+# Status: testing
+#
+# - generate multiple rootfs images from single bitbake invocation
+# - bitbake-generated ISO with custom syslinux boot menu
+# - bitbake-generated ISO with custom grub boot menu
+# - stubdom recipe compatibility with single and multiconfig builds
+# - bitbake -rmulticonfig.conf to toggle single/multi builds
+#
+# TODO Multiconfig:
+#
+# 1 enable multiconfig generation of PXE artifacts
+# 2 audit mc:native binaries
+# 3 audit sstate caching for image/iso deploy artifacts
+# 4 mounted tmpdir support (openxt-mc-image, stubdoms, image-live.bbclass)
+#   of multiconfig-aware paths for deploy artifacts
+# 5 mc target for build tools: native, java, dojo, haskell, ocaml
+# 6 isolate java/ocaml/haskell host tools from OE SDK
+# 7 test hash equivalence fixes with latest (Dunfell) bitbake
+# 8 log races/intermittent recipe failures that work on rebuild
+#
+# TODO Build reduction/serialization
+#
+# 1 audit lengthy build tasks with many dependencies, which
+#   serialize the build, e.g. ovmf-edk2, webkit, xenmgr-data
+#   - OVMF enables experimental guest UEFI, could be optional
+#   - webkit & icedtea7 will be replaced when there's a new UIVM
+# 2 test new Xen recipes from meta-virtualization
+# 3 test OpenXT installer recipe improvements
+# 4 drop boost dependency via thin-provisioning-tools
+# 5 reduce upstream icedtea native dependencies
+# 6 drop gnome dependency via tpm2-tss
+# 7 ndvm needs bind?
+# 8 dom0 needs gtk, cairo-native, libx*, flac, libvorbis?
+#
+# TMPDIR:
+#
+# For mounted tmpdir (e.g. ramdisk, separation of build and source),
+# ensure that multiconfig and single-config tmpdirs are within the 
+# same directory tree, e.g. 
+#   - multiconf TMPDIR=/foo/tmp-mc1 (in conf/multiconfig/mc1.conf)
+#   - singleconf TMPDIR=/food/tmp-single (in local.conf)
+# This is a workaround until bitbake has native support for mc-aware
+# paths, e.g. TMPDIR, DEPLOY_DIR.
+#
+# Upstream docs:
+#
+#   Yocto Project 3.0 (Zeus) release (hash equivalence)
+#   https://lwn.net/Articles/804640/
+#
+#   Examples: https://www.yoctoproject.org/docs/latest/bitbake-user-manual/bitbake-user-manual.html#bitbake-examples
+#   Concepts: https://www.yoctoproject.org/docs/latest/dev-manual/dev-manual.html#dev-building-images-for-multiple-targets-using-multiple-configurations
+#   BBMULTICONFIG: https://www.yoctoproject.org/docs/current/ref-manual/ref-manual.html#var-B
+#   Images: https://www.yoctoproject.org/docs/latest/overview-manual/overview-manual.html#bitbake-dev-environment
+#
+#   "Incorporating deploy artefacts from one multiconfig in another multiconfig"
+#   http://lists.openembedded.org/pipermail/openembedded-architecture/2019-February/001584.html
+#
+#   "Keeping multiconfig config files in sync" (layer-specific)
+#   http://lists.openembedded.org/pipermail/bitbake-devel/2019-September/020373.html
+#
